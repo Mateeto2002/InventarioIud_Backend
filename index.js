@@ -24,6 +24,6 @@ app.use('/usuario', require('./router/usuario'))
 
 
 app.listen(port, () => {
-  console.log('conectado al puerto ${port}'  )
+  console.log(`conectado al puerto ${port}`);
 })
 
