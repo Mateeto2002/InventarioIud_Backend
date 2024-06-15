@@ -4,6 +4,20 @@ const { validationResult, check } = require('express-validator');
 
 const router = Router();
 
+
+
+// Get all users
+router.get('/', async function (req, res) {
+    try {
+        const usuarios = await Usuario.find();
+        res.send(usuarios);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Error al obtener los usuarios');
+    }
+});
+
+
 // Create a new user
 router.post('/', [
     check('nombre', 'invalid.nombre').not().isEmpty(),
