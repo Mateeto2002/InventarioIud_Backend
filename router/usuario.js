@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const Usuario = require('../models/Usuario');
+const Usuario = require('../models/Usuario.js');
 const { validationResult, check } = require('express-validator');
 const auth = require('../utilities/authMiddleware'); // Correct import
 

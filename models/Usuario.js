@@ -38,17 +38,25 @@ const userSchema = new mongoose.Schema({
 
 // Middleware to hash password before saving the user
 userSchema.pre('save', async function (next) {
+    console.log('Pre-save middleware triggered');
     if (this.isModified('password')) {
+        //console.log('Hashing password');
         this.password = await bcrypt.hash(this.password, 10);
+        //console.log('Password hashed:', this.password);
     }
     next();
 });
 
 // Method to compare entered password with hashed password in database
 userSchema.methods.isValidPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    //console.log('Comparing passwords');
+    const result = await bcrypt.compare(password, this.password);
+    //console.log('Password comparison result:', result);
+    return result;
 };
 
 const User = mongoose.model('User', userSchema, 'usuarios');
+
+console.log('User model compiled');
 
 module.exports = User;
