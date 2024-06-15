@@ -1,16 +1,54 @@
-const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const UsuarioSchema = new Schema({
-
-    nombre: {type: String, require: true},
-    email: {type: String, require: true},
-    password: { type: String, require: true},
-    estado: {type: String, require: true, enum: ['Activo', 'Inactivo']},
-    fecha_actualizacion: { type: String, require: true},
-    fecha_creacion: { type: String, require: true}
-
-
-    //  Falta el rol aqui y el router
+const userSchema = new mongoose.Schema({
+    nombre: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    estado: {
+        type: String,
+        required: true,
+        enum: ['Activo', 'Inactivo']
+    },
+    fecha_actualizacion: {
+        type: Date,
+        required: true
+    },
+    fecha_creacion: {
+        type: Date,
+        required: true
+    },
+    rol: {
+        type: String,
+        required: true,
+        default: 'user'
+    }
 });
 
-module.exports = model('Usuario', UsuarioSchema);
+// Middleware to hash password before saving the user
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password')) {
+        this.password = await bcrypt.hash(this.password, 10);
+    }
+    next();
+});
+
+// Method to compare entered password with hashed password in database
+userSchema.methods.isValidPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
+};
+
+const User = mongoose.model('User', userSchema, 'usuarios');
+
+module.exports = User;

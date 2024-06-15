@@ -1,22 +1,28 @@
+const express = require('express');
 const jwt = require('jsonwebtoken');
+const User = require('../models/Usuario');
+const router = express.Router();
 
-exports.login = async (req, res) => {
+router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Buscar el usuario por email
+        console.log('Login attempt:', { email, password });
+
         const user = await User.findOne({ email });
+        console.log("USER:", user);
+
         if (!user) {
             return res.status(400).json({ msg: 'Usuario no encontrado' });
         }
 
-        // Verificar la contraseña
-        const isMatch = await user.matchPassword(password);
+        const isMatch = await user.isValidPassword(password);
+        console.log('Password match:', isMatch);
+
         if (!isMatch) {
             return res.status(400).json({ msg: 'Contraseña incorrecta' });
         }
 
-        // Crear el payload para el token
         const payload = {
             user: {
                 id: user.id,
@@ -24,7 +30,6 @@ exports.login = async (req, res) => {
             }
         };
 
-        // Firmar el token
         jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
             if (err) throw err;
             res.json({ token });
@@ -34,4 +39,6 @@ exports.login = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Error del servidor');
     }
-};
+});
+
+module.exports = router;

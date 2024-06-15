@@ -1,25 +1,13 @@
 const { Router } = require('express');
 const Usuario = require('../models/Usuario');
 const { validationResult, check } = require('express-validator');
+const auth = require('../utilities/authMiddleware'); // Correct import
 
 const router = Router();
 
-
-
-// Get all users
-router.get('/', async function (req, res) {
-    try {
-        const usuarios = await Usuario.find();
-        res.send(usuarios);
-    } catch (error) {
-        console.log(error);
-        res.status(500).send('Error al obtener los usuarios');
-    }
-});
-
-
-// Create a new user
+// Create a new user (protected route)
 router.post('/', [
+    auth, // Use authentication middleware
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('password', 'invalid.password').not().isEmpty(),
     check('email', 'invalid.email').not().isEmpty(),
@@ -49,8 +37,9 @@ router.post('/', [
     }
 });
 
-// Update an existing user
+// Update an existing user (protected route)
 router.put('/:id', [
+    auth, // Use authentication middleware
     check('nombre', 'invalid.nombre').not().isEmpty(),
     check('estado', 'invalid.estado').isIn(['Activo', 'Inactivo']),
     check('email', 'invalid.email').not().isEmpty(),
@@ -83,6 +72,17 @@ router.put('/:id', [
     } catch (error) {
         console.log(error);
         res.status(500).send('Error al actualizar el usuario');
+    }
+});
+
+// Get all users (protected route)
+router.get('/', auth, async function (req, res) {
+    try {
+        const usuarios = await Usuario.find();
+        res.send(usuarios);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Error al obtener los usuarios');
     }
 });
 
