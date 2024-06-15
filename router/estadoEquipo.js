@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { validationResult, check } = require('express-validator');
 const EstadoEquipo = require('../models/EstadoEquipo');
+const auth = require('../utilities/authMiddleware');
 
 const router = Router();
 
@@ -38,6 +39,16 @@ router.post('/', [
     }
 
 })
+
+router.get('/', auth, async function (req, res) {
+    try {
+        const estadoEquipo = await EstadoEquipo.find();
+        res.send(estadoEquipo);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Error al obtener los estados de los equipos');
+    }
+});
 
 
 

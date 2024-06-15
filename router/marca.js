@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { validationResult, check } = require('express-validator');
 const Marca = require('../models/Marca');
+const auth = require('../utilities/authMiddleware');
 
 const router = Router();
 
@@ -10,14 +11,11 @@ router.post('/', [
     check('estado', 'invalid.estado').isIn(['Activo', 'Inactivo'])
 
 ], async function ( req, res ){
-
     try {
-
         const errors = validationResult(req);
         if(!errors.isEmpty()) {
             return res.status(400).json({ mensaje: errors.array() })
         }
-
         let marca = new Marca();
 
         marca.nombre = req.body.nombre;
@@ -26,17 +24,28 @@ router.post('/', [
         marca.fecha_creacion = new Date;
 
         marca = await marca.save();
+        res.send(marca);     
 
-        res.send(marca);
-
-
-        
     } catch (error) {
         console.log(error);
         res.status(500).send('error ');
     }
-
 })
+
+//Listar Marcas
+router.get('/', auth, async function (req, res) {
+    try {
+        const marca = await Marca.find();
+        res.send(marca);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Error al obtener los marcas');
+    }
+});
+
+
+
+
 
 
 module.exports = router;

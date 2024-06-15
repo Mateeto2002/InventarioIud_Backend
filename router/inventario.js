@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const Inventario = require('../models/Inventario');
 const { validationResult, check } = require('express-validator');
+const auth = require('../utilities/authMiddleware');
 
 const router = Router();
 
@@ -59,5 +60,33 @@ router.post('/', [
 
 
 })
+
+
+//Listar Inventario
+router.get('/', async function (req, res) {
+
+    try {
+        const inventario = await Inventario.find().populate([
+
+            /*{
+                path: 'usuario', select: 'nombre'
+            },*/
+            {
+                path: 'tipo_equipo', select: 'nombre'
+            },
+            {
+                path: 'marca', select: 'nombre'
+            },
+            {
+                path: 'estado_equipo', select: 'nombre'
+            }
+       ]);
+
+        res.send(inventario);
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Error al obtener los inventario');
+    }
+});
 
 module.exports = router;
